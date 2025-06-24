@@ -30,6 +30,67 @@ Specifically, in **Diffuse Everything**, we allow the diffusion process on each 
 [May 01, 2025] Diffuse Everything was accepted to ICML 2025.
 
 
+## Installation
+1. Clone the repository
+```
+git clone [repository-url]
+cd Diffuse-Everything-Tabular
+```
+2. Install the dependencies
+```
+conda create --name diff-every-tabular python=3.10
+conda activate diff-every-tabular
+pip install synthcity
+pip install category_encoders
+pip install opacus==1.5.2
+pip install -r requirement.txt
+```
+Note: synthcity==0.2.12 or 0.2.11 should work, as long as opacus==1.5.2
+
+
+
+## Dataset Preparation
+To download the datasets from [UCI Machine Learning Repository](https://archive.ics.uci.edu/), run the following command with scripts taken from [Tabsync](https://github.com/amazon-science/tabsyn),
+```
+python download_dataset.py 
+```
+This should download the dataset to the directory ```data/```. We preprocess the data with
+```
+python process_dataset.py
+```
+The prepocessed dat will be saved to ```synthetic/```
+
+## Training
+To train the model, run
+```
+python train_and_sample.py --dataname <dataset_name> --num_epochs <num_epochs>
+```
+Acceptable options of <dataset_name> is ```adult```, ```beijing```, ```default```, ```magic```, ```news```, ```shoppers```. 
+
+The default directory for results saving is ```./exp```
+
+## Sampling
+After the model is trained, we generate samples from the saved checkpoint using
+```
+python sample.py --dataname <dataset_name> --ckpt_path ${exp_dir}/model_${model_idx}.pt --save_path ${exp_dir}
+```
+where ```exp_dir``` is the results directory, ```model_idx``` is the epoch number of the saved checkpoint.
+
+## Evaluation
+To evaluate the models (for 20 times) and compute (most) metrics including ```shape```, ```trend```, ```MLE```, ```precision``` and ```recall```, run
+```
+python eval/eval_all_metrics.py --dataname <dataset_name> --ckpt_path <ckpt_path> 
+```
+where the command standalone contains 20 times of sampling and metric computation.
+
+
+The missing special cases are to  evaluate ```MLE``` for dataset ```default``` and ```news```, please instead run the following script file instead:
+```
+bash run_eval_mle_default_news.sh
+```
+where ```dataset```, ```model_idx``` and ```exp_dir``` need to be specified at the top of the file.
+
+
 ## Citation
 If you find our work and repo help, we would appreciate your citations :smiling_face_with_three_hearts:
 
@@ -51,3 +112,7 @@ If you find our work and repo help, we would appreciate your citations :smiling_
     year={2025}
 }
 ```
+
+## Acknowledgement
+Part of the repo and helper functions are taken from the [Tabsync](https://github.com/amazon-science/tabsyn) repo, and our used backbone are modified based on DiT. 
+
